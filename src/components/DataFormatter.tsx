@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import "@/lib/monaco-setup";
-import Editor, { type OnMount } from "@monaco-editor/react";
+import { CodeEditor as Editor, type OnMount } from "@/components/CodeEditor";
 import {
   Sparkles,
   Minimize2,
