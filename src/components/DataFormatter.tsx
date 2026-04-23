@@ -283,7 +283,7 @@ export function DataFormatter() {
 
 const editorOptions = {
   fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-  fontSize: 13,
+  fontSize: 15,
   fontLigatures: true,
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
