@@ -1,41 +1,42 @@
-import { lazy, Suspense, type ComponentProps } from "react";
+import { useEffect, useState, type ComponentProps, type ComponentType } from "react";
 
-// Lazy-load Monaco only on the client to avoid SSR/worker bundling issues
-// and keep production from depending on a CDN at runtime.
-const MonacoEditor = lazy(async () => {
-  const [{ loader, default: Editor }, monaco, editorWorker, jsonWorker] = await Promise.all([
-    import("@monaco-editor/react"),
-    import("monaco-editor"),
-    import("monaco-editor/esm/vs/editor/editor.worker?worker"),
-    import("monaco-editor/esm/vs/language/json/json.worker?worker"),
-  ]);
+// We import Monaco only in the browser to avoid SSR pulling in monaco-editor's
+// CSS assets (which Node can't load) and to prevent hydration mismatches.
+type MonacoModule = typeof import("@monaco-editor/react");
+type MonacoEditorComponent = MonacoModule["default"];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (self as any).MonacoEnvironment = {
-    getWorker(_: string, label: string) {
-      if (label === "json") return new jsonWorker.default();
-      return new editorWorker.default();
-    },
-  };
-  loader.config({ monaco });
+let editorPromise: Promise<MonacoEditorComponent> | null = null;
+function loadEditor(): Promise<MonacoEditorComponent> {
+  if (!editorPromise) {
+    editorPromise = import("@monaco-editor/react").then((m) => m.default);
+  }
+  return editorPromise;
+}
 
-  return { default: Editor };
-});
-
-export type EditorProps = ComponentProps<typeof MonacoEditor>;
+export type EditorProps = ComponentProps<MonacoEditorComponent>;
 
 export function CodeEditor(props: EditorProps) {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-          Loading editor…
-        </div>
-      }
-    >
-      <MonacoEditor {...props} />
-    </Suspense>
-  );
+  const [Editor, setEditor] = useState<ComponentType<EditorProps> | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    loadEditor().then((Cmp) => {
+      if (mounted) setEditor(() => Cmp);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (!Editor) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+        Loading editor…
+      </div>
+    );
+  }
+
+  return <Editor {...props} />;
 }
 
 export type { OnMount } from "@monaco-editor/react";
