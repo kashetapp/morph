@@ -1,42 +1,105 @@
-import { useEffect, useState, type ComponentProps, type ComponentType } from "react";
+import { useEffect, useRef, type ChangeEvent, type UIEvent } from "react";
 
-// We import Monaco only in the browser to avoid SSR pulling in monaco-editor's
-// CSS assets (which Node can't load) and to prevent hydration mismatches.
-type MonacoModule = typeof import("@monaco-editor/react");
-type MonacoEditorComponent = MonacoModule["default"];
+// Lightweight, SSR-safe code editor: textarea with synced line numbers.
+// Replaces Monaco to avoid bundling .css/worker assets that break Cloudflare
+// Worker SSR and produce 404s in production.
 
-let editorPromise: Promise<MonacoEditorComponent> | null = null;
-function loadEditor(): Promise<MonacoEditorComponent> {
-  if (!editorPromise) {
-    editorPromise = import("@monaco-editor/react").then((m) => m.default);
-  }
-  return editorPromise;
+export type OnMount = (editor: { focus: () => void }) => void;
+
+export interface EditorProps {
+  value: string;
+  onChange?: (value: string | undefined) => void;
+  onMount?: OnMount;
+  language?: string;
+  height?: string | number;
+  theme?: string;
+  options?: {
+    readOnly?: boolean;
+    fontSize?: number;
+    tabSize?: number;
+  };
 }
 
-export type EditorProps = ComponentProps<MonacoEditorComponent>;
+export function CodeEditor({
+  value,
+  onChange,
+  onMount,
+  options,
+  height = "100%",
+}: EditorProps) {
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  const gutterRef = useRef<HTMLDivElement>(null);
 
-export function CodeEditor(props: EditorProps) {
-  const [Editor, setEditor] = useState<ComponentType<EditorProps> | null>(null);
+  const readOnly = options?.readOnly ?? false;
+  const fontSize = options?.fontSize ?? 13;
+  const tabSize = options?.tabSize ?? 2;
 
   useEffect(() => {
-    let mounted = true;
-    loadEditor().then((Cmp) => {
-      if (mounted) setEditor(() => Cmp);
-    });
-    return () => {
-      mounted = false;
-    };
+    if (taRef.current && onMount) {
+      onMount({ focus: () => taRef.current?.focus() });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!Editor) {
-    return (
-      <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-        Loading editor…
+  const lineCount = Math.max(1, value.split("\n").length);
+  const lines = Array.from({ length: lineCount }, (_, i) => i + 1).join("\n");
+
+  const handleScroll = (e: UIEvent<HTMLTextAreaElement>) => {
+    if (gutterRef.current) {
+      gutterRef.current.scrollTop = e.currentTarget.scrollTop;
+    }
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    onChange?.(e.target.value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Tab" && !readOnly) {
+      e.preventDefault();
+      const ta = e.currentTarget;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const indent = " ".repeat(tabSize);
+      const next = value.substring(0, start) + indent + value.substring(end);
+      onChange?.(next);
+      requestAnimationFrame(() => {
+        ta.selectionStart = ta.selectionEnd = start + indent.length;
+      });
+    }
+  };
+
+  return (
+    <div
+      className="relative flex h-full w-full overflow-hidden bg-[#1e1e1e] font-mono"
+      style={{ height, fontSize }}
+    >
+      <div
+        ref={gutterRef}
+        aria-hidden
+        className="select-none overflow-hidden whitespace-pre py-3.5 pl-3 pr-2 text-right text-[#6b7280] leading-[1.55]"
+        style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}
+      >
+        {lines}
       </div>
-    );
-  }
-
-  return <Editor {...props} />;
+      <textarea
+        ref={taRef}
+        value={value}
+        readOnly={readOnly}
+        onChange={handleChange}
+        onScroll={handleScroll}
+        onKeyDown={handleKeyDown}
+        spellCheck={false}
+        autoCapitalize="off"
+        autoCorrect="off"
+        autoComplete="off"
+        wrap="off"
+        className="flex-1 resize-none overflow-auto whitespace-pre bg-transparent py-3.5 pl-2 pr-4 text-[#d4d4d4] leading-[1.55] outline-none"
+        style={{
+          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+          tabSize,
+        }}
+      />
+    </div>
+  );
 }
-
-export type { OnMount } from "@monaco-editor/react";
