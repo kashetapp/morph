@@ -121,11 +121,11 @@ export function DataFormatter() {
             <FileCode2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-sm font-semibold tracking-tight">Data Formatter</h1>
-            <p className="text-[11px] text-muted-foreground">JSON · YAML · XML — beautify, validate, convert</p>
+            <h1 className="text-base font-semibold tracking-tight">Data Formatter</h1>
+            <p className="text-[13px] text-muted-foreground">JSON · YAML · XML — beautify, validate, convert</p>
           </div>
         </div>
-        <div className="hidden items-center gap-2 text-[11px] text-muted-foreground md:flex">
+        <div className="hidden items-center gap-2 text-[13px] text-muted-foreground md:flex">
           <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>
           <span>format</span>
           <span className="mx-2 text-border">·</span>
@@ -194,7 +194,7 @@ export function DataFormatter() {
             right={
               <button
                 onClick={() => setAutoDetect((v) => !v)}
-                className={`rounded-md border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
                   autoDetect
                     ? "border-primary/40 bg-primary/10 text-primary"
                     : "border-border text-muted-foreground hover:text-foreground"
@@ -218,7 +218,7 @@ export function DataFormatter() {
             />
           </div>
           {!parsed.ok && parsed.error && (
-            <div className="flex items-start gap-2 border-t border-destructive/30 bg-destructive/10 px-4 py-2 text-[12px] text-destructive">
+            <div className="flex items-start gap-2 border-t border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive">
               <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <div className="mono">
                 {parsed.error.line ? `Line ${parsed.error.line}: ` : ""}
@@ -239,7 +239,7 @@ export function DataFormatter() {
                 <button
                   onClick={handleCopy}
                   disabled={!output}
-                  className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[10px] font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary disabled:opacity-40"
+                  className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary disabled:opacity-40"
                 >
                   {copied ? (
                     <>
@@ -270,7 +270,7 @@ export function DataFormatter() {
                 {parsed.ok && parsed.data !== undefined ? (
                   <TreeView data={parsed.data} />
                 ) : (
-                  <div className="text-xs text-muted-foreground mono">No data to display</div>
+                  <div className="text-sm text-muted-foreground mono">No data to display</div>
                 )}
               </div>
             )}
@@ -309,10 +309,10 @@ function PaneHeader({
   return (
     <div className="flex items-center justify-between border-b border-border/60 bg-surface/50 px-4 py-2">
       <div className="flex items-baseline gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
+        <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
           {label}
         </span>
-        {sub && <span className="text-[10px] text-muted-foreground mono">{sub}</span>}
+        {sub && <span className="text-[11px] text-muted-foreground mono">{sub}</span>}
       </div>
       {right}
     </div>
@@ -335,8 +335,8 @@ function ToolbarButton({
       onClick={onClick}
       className={
         primary
-          ? "flex h-8 items-center gap-1.5 rounded-md bg-gradient-primary px-3 text-xs font-medium text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-[0.97]"
-          : "flex h-8 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-xs font-medium text-foreground transition-all hover:border-primary/40 hover:text-primary active:scale-[0.97]"
+          ? "flex h-9 items-center gap-1.5 rounded-md bg-gradient-primary px-3.5 text-sm font-medium text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-[0.97]"
+          : "flex h-9 items-center gap-1.5 rounded-md border border-border bg-surface px-3.5 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:text-primary active:scale-[0.97]"
       }
     >
       {icon}
@@ -356,7 +356,7 @@ function FormatSelector({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </span>
       <div className="flex rounded-md border border-border bg-surface p-0.5">
@@ -364,7 +364,7 @@ function FormatSelector({
           <button
             key={f.value}
             onClick={() => onChange(f.value)}
-            className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-medium transition-all ${
+            className={`flex items-center gap-1 rounded px-2.5 py-1.5 text-[13px] font-medium transition-all ${
               value === f.value
                 ? "bg-primary/15 text-primary"
                 : "text-muted-foreground hover:text-foreground"
@@ -392,7 +392,7 @@ function ViewToggle({
         <button
           key={v}
           onClick={() => setView(v)}
-          className={`px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+          className={`px-2.5 py-1 text-xs font-semibold uppercase tracking-wider transition-colors ${
             view === v ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -406,7 +406,7 @@ function ViewToggle({
 function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
   return (
     <div
-      className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+      className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wider transition-colors ${
         ok
           ? "border-success/40 bg-success/10 text-success"
           : "border-destructive/40 bg-destructive/10 text-destructive"
@@ -420,7 +420,7 @@ function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-medium text-foreground mono">
+    <kbd className="rounded border border-border bg-surface px-1.5 py-0.5 text-xs font-medium text-foreground mono">
       {children}
     </kbd>
   );
