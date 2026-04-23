@@ -180,7 +180,7 @@ export function DataFormatter() {
       <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-2">
         {/* Input */}
         <div
-          className="flex min-h-0 flex-col border-b border-border/60 md:border-b-0 md:border-r"
+          className="flex min-h-0 flex-col border-b-2 border-border md:border-b-0 md:border-r-2"
           onDrop={onDrop}
           onDragOver={(e) => e.preventDefault()}
         >
