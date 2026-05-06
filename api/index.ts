@@ -11,7 +11,7 @@ export default async function handler(req: any, res: any) {
     body: req.method === 'GET' || req.method === 'HEAD' ? undefined : req,
   });
 
-  const response = await entry.default.fetch(request);
+  const response = await entry.fetch(request);
 
   res.statusCode = response.status;
   response.headers.forEach((value, key) => {

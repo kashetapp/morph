@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "vercel-build": "npm run build",
+    "copy-client-assets": "node ./scripts/copy-client-assets.js",
+    "vercel-build": "npm run build && npm run copy-client-assets",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
