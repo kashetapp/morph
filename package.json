@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && npm run copy-client-assets",
     "copy-client-assets": "node ./scripts/copy-client-assets.js",
-    "vercel-build": "npm run build && npm run copy-client-assets",
+    "vercel-build": "npm run build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
